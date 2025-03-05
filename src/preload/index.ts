@@ -5,7 +5,9 @@ import { electronAPI } from '@electron-toolkit/preload'
 const api = {
   getAutoLaunchStatus: (): Promise<unknown> => ipcRenderer.invoke('get-auto-launch-status'),
   setAutoLaunch: (enable: boolean): Promise<unknown> =>
-    ipcRenderer.invoke('set-auto-launch', enable)
+    ipcRenderer.invoke('set-auto-launch', enable),
+  // 添加获取MAC地址
+  getMacAddress: (): Promise<string[]> => ipcRenderer.invoke('get-mac-address')
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

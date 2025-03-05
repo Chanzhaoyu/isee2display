@@ -70,6 +70,45 @@
       </div>
       <p class="text-sm text-gray-500">启用此选项后，系统启动时将自动运行</p>
     </div>
+
+    <div class="p-6 mt-6 bg-white rounded-lg shadow">
+      <h2 class="mb-4 text-lg font-semibold text-gray-700">设备信息</h2>
+
+      <div class="mb-4">
+        <h3 class="mb-2 text-sm font-medium text-gray-700">MAC地址</h3>
+        <div class="grid grid-cols-2 gap-4">
+          <!-- 左侧：原始MAC地址 -->
+          <div>
+            <h4 class="mb-2 text-xs font-medium text-gray-500">标准格式</h4>
+            <div v-if="macAddresses.length > 0">
+              <div
+                v-for="(mac, index) in macAddresses"
+                :key="`original-${index}`"
+                class="p-2 mb-1 text-sm rounded bg-gray-50"
+              >
+                {{ mac }}
+              </div>
+            </div>
+            <div v-else class="p-2 mb-1 text-sm rounded bg-gray-50">正在获取MAC地址...</div>
+          </div>
+
+          <!-- 右侧：无冒号MAC地址 -->
+          <div>
+            <h4 class="mb-2 text-xs font-medium text-gray-500">无分隔符格式</h4>
+            <div v-if="macAddresses.length > 0">
+              <div
+                v-for="(mac, index) in macAddresses"
+                :key="`no-colon-${index}`"
+                class="p-2 mb-1 text-sm rounded bg-gray-50"
+              >
+                {{ formatMacWithoutColons(mac) }}
+              </div>
+            </div>
+            <div v-else class="p-2 mb-1 text-sm rounded bg-gray-50">正在获取MAC地址...</div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -84,6 +123,9 @@ const LOCAL_STORAGE_URL_KEY = 'display-url'
 const url = ref('')
 const savedUrl = ref('')
 const autoLaunch = ref(false)
+
+// 添加MAC地址相关变量
+const macAddresses = ref<string[]>([])
 
 function loadSavedUrl(): void {
   const storedUrl = localStorage.getItem(LOCAL_STORAGE_URL_KEY)
@@ -136,8 +178,30 @@ async function toggleAutoLaunch(): Promise<void> {
   }
 }
 
+function formatMacWithoutColons(macAddress: string): string {
+  // 分割字符串以处理类似 "eth0: aa:bb:cc:dd:ee:ff" 这样的格式
+  const parts = macAddress.split(': ')
+  if (parts.length >= 2) {
+    const interfaceName = parts[0]
+    const macWithColons = parts[1]
+    const macWithoutColons = macWithColons.replace(/:/g, '')
+    return `${interfaceName}: ${macWithoutColons}`
+  }
+  // 如果没有找到预期的格式，返回原始字符串但移除所有冒号
+  return macAddress.replace(/:/g, '')
+}
+
+async function loadMacAddress(): Promise<void> {
+  try {
+    macAddresses.value = await window.api.getMacAddress()
+  } catch (error) {
+    console.error('获取MAC地址失败:', error)
+  }
+}
+
 onMounted(() => {
   loadSavedUrl()
   loadAutoLaunchStatus()
+  loadMacAddress()
 })
 </script>

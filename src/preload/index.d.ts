@@ -6,6 +6,7 @@ declare global {
     api: {
       getAutoLaunchStatus: () => Promise<boolean>
       setAutoLaunch: (enable: boolean) => Promise<boolean>
+      getMacAddress: () => Promise<string[]>
     }
   }
 }
