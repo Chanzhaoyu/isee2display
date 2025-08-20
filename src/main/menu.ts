@@ -8,7 +8,7 @@ export function createMenu(mainWindow: BrowserWindow): void {
       submenu: [
         {
           label: '切换全屏',
-          accelerator: 'F11|CommandOrControl+F',
+          accelerator: 'F11',
           click: (): void => {
             const win = BrowserWindow.getFocusedWindow()
             if (win) {
