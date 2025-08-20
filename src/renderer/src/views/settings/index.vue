@@ -88,6 +88,52 @@
     </div>
 
     <div class="p-6 mt-6 bg-white rounded-lg shadow">
+      <h2 class="mb-4 text-lg font-semibold text-gray-700">应用更新</h2>
+
+      <div class="mb-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-sm font-medium text-gray-700">当前版本</span>
+          <span class="text-sm text-gray-600">{{ appVersion }}</span>
+        </div>
+
+        <div v-if="updateStatus" class="mb-3">
+          <div class="flex items-center">
+            <div
+              class="w-2 h-2 rounded-full mr-2"
+              :class="{
+                'bg-green-500': updateStatus === 'latest',
+                'bg-blue-500': updateStatus === 'checking',
+                'bg-orange-500': updateStatus === 'available',
+                'bg-red-500': updateStatus === 'error'
+              }"
+            ></div>
+            <span class="text-sm text-gray-600">{{ updateStatusText }}</span>
+          </div>
+        </div>
+
+        <button
+          class="px-4 py-2 font-medium text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+          :disabled="updateStatus === 'checking'"
+          @click="checkForUpdates"
+        >
+          {{ updateStatus === 'checking' ? '检查中...' : '检查更新' }}
+        </button>
+
+        <div v-if="updateInfo && updateInfo.hasUpdate" class="mt-3 p-3 bg-blue-50 rounded-lg">
+          <p class="text-sm text-blue-800">
+            发现新版本 {{ updateInfo.latestVersion }}，
+            <button class="text-blue-600 underline hover:text-blue-800" @click="startUpdate">
+              立即更新
+            </button>
+          </p>
+          <p v-if="updateInfo.releaseNotes" class="mt-2 text-xs text-blue-600">
+            {{ updateInfo.releaseNotes }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-6 mt-6 bg-white rounded-lg shadow">
       <h2 class="mb-4 text-lg font-semibold text-gray-700">设备信息</h2>
 
       <div class="mb-4">
@@ -129,7 +175,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -144,6 +190,32 @@ const fullScreenDefault = ref(false)
 
 // 添加MAC地址相关变量
 const macAddresses = ref<string[]>([])
+
+// 添加更新相关变量
+const appVersion = ref('')
+const updateStatus = ref<'checking' | 'latest' | 'available' | 'error' | ''>('')
+const updateInfo = ref<{
+  hasUpdate: boolean
+  currentVersion: string
+  latestVersion?: string
+  releaseNotes?: string
+} | null>(null)
+
+// 更新状态文本
+const updateStatusText = computed(() => {
+  switch (updateStatus.value) {
+    case 'checking':
+      return '正在检查更新...'
+    case 'latest':
+      return '已是最新版本'
+    case 'available':
+      return '有新版本可用'
+    case 'error':
+      return '检查更新失败'
+    default:
+      return ''
+  }
+})
 
 function loadSavedUrl(): void {
   const storedUrl = localStorage.getItem(LOCAL_STORAGE_URL_KEY)
@@ -247,10 +319,49 @@ async function loadMacAddress(): Promise<void> {
   }
 }
 
+// 加载应用版本
+async function loadAppVersion(): Promise<void> {
+  try {
+    appVersion.value = await window.api.getAppVersion()
+  } catch (error) {
+    console.error('获取应用版本失败:', error)
+    appVersion.value = '未知版本'
+  }
+}
+
+// 检查更新
+async function checkForUpdates(): Promise<void> {
+  if (updateStatus.value === 'checking') return
+
+  updateStatus.value = 'checking'
+  updateInfo.value = null
+
+  try {
+    const result = await window.api.checkForUpdates()
+    updateInfo.value = result
+
+    if (result.hasUpdate) {
+      updateStatus.value = 'available'
+    } else {
+      updateStatus.value = 'latest'
+    }
+  } catch (error) {
+    console.error('检查更新失败:', error)
+    updateStatus.value = 'error'
+  }
+}
+
+// 开始更新
+function startUpdate(): void {
+  // 触发自动更新流程
+  window.api.checkForUpdatesAuto()
+}
+
 onMounted(() => {
   loadSavedUrl()
   loadAutoLaunchStatus()
   loadMacAddress()
   loadFullScreenSetting()
+  loadAppVersion()
 })
 </script>

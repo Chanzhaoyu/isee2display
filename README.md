@@ -18,6 +18,7 @@ npm install
 ```
 
 ## 运行
+
 ```bash
 # 首次
 npm run postinstall
@@ -33,4 +34,5 @@ npm run build:win
 ```
 
 ## Author
+
 ChenZhaoYu

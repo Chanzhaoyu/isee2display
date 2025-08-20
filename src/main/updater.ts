@@ -1,0 +1,154 @@
+import { autoUpdater } from 'electron-updater'
+import { BrowserWindow, app } from 'electron'
+import { is } from '@electron-toolkit/utils'
+
+let mainWindow: BrowserWindow | null = null
+
+// 设置更新相关配置
+export function setupUpdater(window: BrowserWindow): void {
+  mainWindow = window
+
+  // 配置自动更新器
+  autoUpdater.autoDownload = false // 不自动下载，需要用户确认
+  autoUpdater.autoInstallOnAppQuit = true // 应用退出时自动安装
+
+  // 开发环境下不检查更新
+  if (is.dev) {
+    console.log('开发环境，跳过自动更新检查')
+    return
+  }
+
+  // 监听更新事件
+  setupUpdateEvents()
+}
+
+// 设置更新事件监听器
+function setupUpdateEvents(): void {
+  // 检查更新出错
+  autoUpdater.on('error', (error) => {
+    console.error('更新出错:', error)
+    sendUpdateMessage('update-error', error.message)
+  })
+
+  // 检查更新
+  autoUpdater.on('checking-for-update', () => {
+    console.log('正在检查更新...')
+    sendUpdateMessage('checking-for-update')
+  })
+
+  // 发现可用更新
+  autoUpdater.on('update-available', (info) => {
+    console.log('发现新版本:', info.version)
+    sendUpdateMessage('update-available', info)
+  })
+
+  // 没有可用更新
+  autoUpdater.on('update-not-available', (info) => {
+    console.log('已是最新版本:', info.version)
+    sendUpdateMessage('update-not-available', info)
+  })
+
+  // 更新下载进度
+  autoUpdater.on('download-progress', (progressObj) => {
+    console.log('下载进度:', Math.round(progressObj.percent) + '%')
+    sendUpdateMessage('download-progress', progressObj)
+  })
+
+  // 更新下载完成
+  autoUpdater.on('update-downloaded', (info) => {
+    console.log('更新下载完成:', info.version)
+    sendUpdateMessage('update-downloaded', info)
+  })
+}
+
+// 向渲染进程发送更新消息
+function sendUpdateMessage(type: string, data?: unknown): void {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send('updater-message', { type, data })
+  }
+}
+
+// 检查更新
+export function checkForUpdates(): void {
+  if (is.dev) {
+    console.log('开发环境，跳过更新检查')
+    sendUpdateMessage('update-not-available', { version: '开发版本' })
+    return
+  }
+
+  autoUpdater.checkForUpdates()
+}
+
+// 下载更新
+export function downloadUpdate(): void {
+  if (is.dev) {
+    console.log('开发环境，无法下载更新')
+    return
+  }
+
+  autoUpdater.downloadUpdate()
+}
+
+// 安装更新并重启
+export function quitAndInstall(): void {
+  if (is.dev) {
+    console.log('开发环境，无法安装更新')
+    return
+  }
+
+  autoUpdater.quitAndInstall()
+}
+
+// 获取当前版本信息
+export function getCurrentVersion(): string {
+  try {
+    // 使用 electron 的 app.getVersion() 获取版本号
+    // 这会自动读取 package.json 中的 version 字段
+    return app.getVersion()
+  } catch (error) {
+    console.error('获取版本号失败:', error)
+    return '1.0.0'
+  }
+}
+
+// 手动检查更新（用于设置页面）
+export async function checkForUpdatesManually(): Promise<{
+  hasUpdate: boolean
+  currentVersion: string
+  latestVersion?: string
+  releaseNotes?: string
+}> {
+  const currentVersion = getCurrentVersion()
+
+  if (is.dev) {
+    return {
+      hasUpdate: false,
+      currentVersion: '开发版本',
+      latestVersion: '开发版本'
+    }
+  }
+
+  try {
+    const result = await autoUpdater.checkForUpdates()
+
+    if (result?.updateInfo) {
+      const latestVersion = result.updateInfo.version
+      const hasUpdate = latestVersion !== currentVersion
+
+      return {
+        hasUpdate,
+        currentVersion,
+        latestVersion,
+        releaseNotes: result.updateInfo.releaseNotes as string
+      }
+    }
+
+    return {
+      hasUpdate: false,
+      currentVersion
+    }
+  } catch (error) {
+    console.error('检查更新失败:', error)
+    throw error
+  }
+}

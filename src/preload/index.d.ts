@@ -1,5 +1,17 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
 
+interface UpdateInfo {
+  hasUpdate: boolean
+  currentVersion: string
+  latestVersion?: string
+  releaseNotes?: string
+}
+
+interface UpdateMessage {
+  type: string
+  data?: unknown
+}
+
 declare global {
   interface Window {
     electron: ElectronAPI
@@ -9,6 +21,14 @@ declare global {
       getMacAddress: () => Promise<string[]>
       setFullScreenDefault: (enable: boolean) => Promise<void>
       getFullScreenDefault: () => Promise<boolean>
+      // 自动更新相关 API
+      getAppVersion: () => Promise<string>
+      checkForUpdates: () => Promise<UpdateInfo>
+      startDownloadUpdate: () => Promise<void>
+      quitAndInstall: () => Promise<void>
+      checkForUpdatesAuto: () => Promise<void>
+      onUpdaterMessage: (callback: (message: UpdateMessage) => void) => void
+      removeUpdaterListener: () => void
     }
   }
 }

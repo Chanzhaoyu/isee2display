@@ -5,6 +5,13 @@ import {
   setFullScreenDefault,
   getFullScreenDefault
 } from './utils'
+import {
+  checkForUpdates,
+  downloadUpdate,
+  quitAndInstall,
+  getCurrentVersion,
+  checkForUpdatesManually
+} from './updater'
 import { ipcMain } from 'electron'
 
 export function ipcMainSetup(): void {
@@ -30,5 +37,31 @@ export function ipcMainSetup(): void {
 
   ipcMain.handle('get-fullscreen-default', () => {
     return getFullScreenDefault()
+  })
+
+  // 自动更新相关 IPC 处理器
+  ipcMain.handle('get-app-version', () => {
+    return getCurrentVersion()
+  })
+
+  ipcMain.handle('check-for-updates', async () => {
+    try {
+      return await checkForUpdatesManually()
+    } catch (error) {
+      console.error('检查更新失败:', error)
+      throw error
+    }
+  })
+
+  ipcMain.handle('start-download-update', () => {
+    downloadUpdate()
+  })
+
+  ipcMain.handle('quit-and-install', () => {
+    quitAndInstall()
+  })
+
+  ipcMain.handle('check-for-updates-auto', () => {
+    checkForUpdates()
   })
 }

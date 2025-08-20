@@ -5,6 +5,7 @@ import icon from '../../resources/icon.png?asset'
 import { ipcMainSetup } from './ipc'
 import { createMenu } from './menu'
 import { getFullScreenDefault } from './utils'
+import { setupUpdater } from './updater'
 
 function createWindow(): void {
   // 获取全屏设置
@@ -28,6 +29,9 @@ function createWindow(): void {
   })
 
   createMenu(mainWindow)
+
+  // 设置自动更新器
+  setupUpdater(mainWindow)
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()

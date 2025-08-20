@@ -11,7 +11,24 @@ const api = {
   // 添加全屏设置相关API
   setFullScreenDefault: (enable: boolean): Promise<void> =>
     ipcRenderer.invoke('set-fullscreen-default', enable),
-  getFullScreenDefault: (): Promise<boolean> => ipcRenderer.invoke('get-fullscreen-default')
+  getFullScreenDefault: (): Promise<boolean> => ipcRenderer.invoke('get-fullscreen-default'),
+
+  // 自动更新相关API
+  getAppVersion: (): Promise<string> => ipcRenderer.invoke('get-app-version'),
+  checkForUpdates: (): Promise<unknown> => ipcRenderer.invoke('check-for-updates'),
+  startDownloadUpdate: (): Promise<void> => ipcRenderer.invoke('start-download-update'),
+  quitAndInstall: (): Promise<void> => ipcRenderer.invoke('quit-and-install'),
+  checkForUpdatesAuto: (): Promise<void> => ipcRenderer.invoke('check-for-updates-auto'),
+
+  // 监听更新消息
+  onUpdaterMessage: (callback: (message: unknown) => void): void => {
+    ipcRenderer.on('updater-message', (_, message) => callback(message))
+  },
+
+  // 移除更新消息监听器
+  removeUpdaterListener: (): void => {
+    ipcRenderer.removeAllListeners('updater-message')
+  }
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
