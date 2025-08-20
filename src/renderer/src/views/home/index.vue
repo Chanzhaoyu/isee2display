@@ -1,13 +1,11 @@
 <template>
   <div class="w-full">
     <div v-if="isValidUrl" class="relative">
-      <!-- 加载遮罩层 -->
       <div
-        v-if="isLoading"
+        v-if="isLoading && isFirstLoad"
         class="absolute inset-0 z-10 flex items-center justify-center bg-white bg-opacity-90"
       >
         <div class="flex flex-col items-center">
-          <!-- 加载动画 -->
           <svg
             class="w-16 h-16 mb-4 text-blue-600 animate-spin"
             xmlns="http://www.w3.org/2000/svg"
@@ -99,9 +97,14 @@ const router = useRouter()
 const LOCAL_STORAGE_URL_KEY = 'display-url'
 
 const defaultUrl = ''
+
 const webviewUrl = ref('')
+
 const isValidUrl = ref(false)
-const isLoading = ref(true) // 加载状态标志
+
+const isLoading = ref(true)
+
+const isFirstLoad = ref(true)
 
 function validateUrl(url: string): boolean {
   try {
@@ -132,26 +135,34 @@ function goToSettings(): void {
   router.push('/settings')
 }
 
-// 处理webview加载开始
 function handleStartLoading(): void {
-  isLoading.value = true
+  if (isFirstLoad.value) {
+    isLoading.value = true
+  }
 }
 
-// 处理webview加载结束
 function handleStopLoading(): void {
   isLoading.value = false
+  if (isFirstLoad.value) {
+    isFirstLoad.value = false
+  }
 }
 
-// 处理webview DOM就绪 - 作为备份的加载结束检测
 function handleDomReady(): void {
-  // 设置一个短暂延迟以确保页面渲染完成
   setTimeout(() => {
     isLoading.value = false
+    if (isFirstLoad.value) {
+      isFirstLoad.value = false
+    }
   }, 500)
 }
 
 onMounted(() => {
   loadSavedUrl()
+  if (isValidUrl.value) {
+    isFirstLoad.value = true
+    isLoading.value = true
+  }
 })
 </script>
 
