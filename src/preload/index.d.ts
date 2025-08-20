@@ -7,6 +7,8 @@ declare global {
       getAutoLaunchStatus: () => Promise<boolean>
       setAutoLaunch: (enable: boolean) => Promise<boolean>
       getMacAddress: () => Promise<string[]>
+      setFullScreenDefault: (enable: boolean) => Promise<void>
+      getFullScreenDefault: () => Promise<boolean>
     }
   }
 }

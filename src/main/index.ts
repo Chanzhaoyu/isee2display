@@ -4,13 +4,17 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { ipcMainSetup } from './ipc'
 import { createMenu } from './menu'
+import { getFullScreenDefault } from './utils'
 
 function createWindow(): void {
+  // 获取全屏设置
+  const shouldFullScreen = getFullScreenDefault()
+
   const mainWindow = new BrowserWindow({
     title: 'iSee Display',
     width: 1024,
     height: 768,
-    fullscreen: true,
+    fullscreen: shouldFullScreen,
     show: false,
     autoHideMenuBar: false,
     ...(process.platform === 'linux' ? { icon } : {}),

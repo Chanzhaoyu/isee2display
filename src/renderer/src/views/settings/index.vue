@@ -69,6 +69,22 @@
         <label for="autoStart" class="ml-2 text-sm font-medium text-gray-700"> 开机自动启动 </label>
       </div>
       <p class="text-sm text-gray-500">启用此选项后，系统启动时将自动运行</p>
+
+      <div class="flex items-center mt-6 mb-4">
+        <input
+          id="fullScreen"
+          v-model="fullScreenDefault"
+          type="checkbox"
+          class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+          @change="toggleFullScreenDefault"
+        />
+        <label for="fullScreen" class="ml-2 text-sm font-medium text-gray-700">
+          默认全屏显示
+        </label>
+      </div>
+      <p class="text-sm text-gray-500">
+        启用此选项后，应用启动时将自动全屏显示（按 F11 或 Esc 退出全屏）
+      </p>
     </div>
 
     <div class="p-6 mt-6 bg-white rounded-lg shadow">
@@ -119,10 +135,12 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 
 const LOCAL_STORAGE_URL_KEY = 'display-url'
+const LOCAL_STORAGE_FULLSCREEN_KEY = 'display-fullscreen-default'
 
 const url = ref('')
 const savedUrl = ref('')
 const autoLaunch = ref(false)
+const fullScreenDefault = ref(false)
 
 // 添加MAC地址相关变量
 const macAddresses = ref<string[]>([])
@@ -178,6 +196,36 @@ async function toggleAutoLaunch(): Promise<void> {
   }
 }
 
+function loadFullScreenSetting(): void {
+  const stored = localStorage.getItem(LOCAL_STORAGE_FULLSCREEN_KEY)
+  if (stored !== null) {
+    fullScreenDefault.value = stored === 'true'
+  } else {
+    // 如果本地存储中没有设置，从主进程获取
+    if (window.api.getFullScreenDefault) {
+      window.api
+        .getFullScreenDefault()
+        .then((value) => {
+          fullScreenDefault.value = value
+          localStorage.setItem(LOCAL_STORAGE_FULLSCREEN_KEY, value.toString())
+        })
+        .catch((error) => {
+          console.error('获取全屏设置失败:', error)
+        })
+    }
+  }
+}
+
+async function toggleFullScreenDefault(): Promise<void> {
+  try {
+    localStorage.setItem(LOCAL_STORAGE_FULLSCREEN_KEY, fullScreenDefault.value.toString())
+    // 通知主进程更新全屏设置
+    await window.api.setFullScreenDefault(fullScreenDefault.value)
+  } catch (error) {
+    console.error('设置全屏模式失败:', error)
+  }
+}
+
 function formatMacWithoutColons(macAddress: string): string {
   // 分割字符串以处理类似 "eth0: aa:bb:cc:dd:ee:ff" 这样的格式
   const parts = macAddress.split(': ')
@@ -203,5 +251,6 @@ onMounted(() => {
   loadSavedUrl()
   loadAutoLaunchStatus()
   loadMacAddress()
+  loadFullScreenSetting()
 })
 </script>

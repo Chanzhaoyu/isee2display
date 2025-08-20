@@ -1,5 +1,45 @@
 import { app } from 'electron'
 import os from 'os'
+import path from 'path'
+import fs from 'fs'
+
+// 配置文件路径
+const CONFIG_FILE_PATH = path.join(app.getPath('userData'), 'config.json')
+
+// 默认配置
+interface AppConfig {
+  fullScreenDefault: boolean
+}
+
+const defaultConfig: AppConfig = {
+  fullScreenDefault: false
+}
+
+// 读取配置文件
+function readConfig(): AppConfig {
+  try {
+    if (fs.existsSync(CONFIG_FILE_PATH)) {
+      const configData = fs.readFileSync(CONFIG_FILE_PATH, 'utf8')
+      return { ...defaultConfig, ...JSON.parse(configData) }
+    }
+  } catch (error) {
+    console.error('读取配置文件失败:', error)
+  }
+  return defaultConfig
+}
+
+// 写入配置文件
+function writeConfig(config: AppConfig): void {
+  try {
+    const configDir = path.dirname(CONFIG_FILE_PATH)
+    if (!fs.existsSync(configDir)) {
+      fs.mkdirSync(configDir, { recursive: true })
+    }
+    fs.writeFileSync(CONFIG_FILE_PATH, JSON.stringify(config, null, 2))
+  } catch (error) {
+    console.error('写入配置文件失败:', error)
+  }
+}
 
 // 开机自启动
 export function setAutoLaunch(enable: boolean): void {
@@ -46,4 +86,17 @@ export function getMacAddress(): string[] {
   }
 
   return macAddresses
+}
+
+// 设置默认全屏状态
+export function setFullScreenDefault(enable: boolean): void {
+  const config = readConfig()
+  config.fullScreenDefault = enable
+  writeConfig(config)
+}
+
+// 获取默认全屏状态
+export function getFullScreenDefault(): boolean {
+  const config = readConfig()
+  return config.fullScreenDefault
 }
