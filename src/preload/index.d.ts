@@ -10,6 +10,7 @@ interface UpdateInfo {
 interface UpdateMessage {
   type: string
   data?: unknown
+  isManual?: boolean
 }
 
 declare global {
@@ -27,6 +28,7 @@ declare global {
       startDownloadUpdate: () => Promise<void>
       quitAndInstall: () => Promise<void>
       checkForUpdatesAuto: () => Promise<void>
+      checkForUpdatesManual: () => Promise<void>
       onUpdaterMessage: (callback: (message: UpdateMessage) => void) => void
       removeUpdaterListener: () => void
     }

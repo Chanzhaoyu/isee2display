@@ -3,6 +3,7 @@ import { BrowserWindow, app } from 'electron'
 import { is } from '@electron-toolkit/utils'
 
 let mainWindow: BrowserWindow | null = null
+let isManualCheck = false
 
 // 获取用户友好的错误消息
 function getErrorMessage(error: Error): string {
@@ -45,52 +46,54 @@ function setupUpdateEvents(): void {
   autoUpdater.on('error', (error) => {
     console.error('更新出错:', error)
     const errorMessage = getErrorMessage(error)
-    sendUpdateMessage('update-error', errorMessage)
+    sendUpdateMessage('update-error', errorMessage, isManualCheck)
   })
 
   // 检查更新
   autoUpdater.on('checking-for-update', () => {
     console.log('正在检查更新...')
-    sendUpdateMessage('checking-for-update')
+    sendUpdateMessage('checking-for-update', undefined, isManualCheck)
   })
 
   // 发现可用更新
   autoUpdater.on('update-available', (info) => {
     console.log('发现新版本:', info.version)
-    sendUpdateMessage('update-available', info)
+    sendUpdateMessage('update-available', info, isManualCheck)
   })
 
   // 没有可用更新
   autoUpdater.on('update-not-available', (info) => {
     console.log('已是最新版本:', info.version)
-    sendUpdateMessage('update-not-available', info)
+    sendUpdateMessage('update-not-available', info, isManualCheck)
   })
 
   // 更新下载进度
   autoUpdater.on('download-progress', (progressObj) => {
     console.log('下载进度:', Math.round(progressObj.percent) + '%')
-    sendUpdateMessage('download-progress', progressObj)
+    sendUpdateMessage('download-progress', progressObj, isManualCheck)
   })
 
   // 更新下载完成
   autoUpdater.on('update-downloaded', (info) => {
     console.log('更新下载完成:', info.version)
-    sendUpdateMessage('update-downloaded', info)
+    sendUpdateMessage('update-downloaded', info, isManualCheck)
   })
 }
 
 // 向渲染进程发送更新消息
-function sendUpdateMessage(type: string, data?: unknown): void {
+function sendUpdateMessage(type: string, data?: unknown, isManual = false): void {
   if (mainWindow && !mainWindow.isDestroyed()) {
-    mainWindow.webContents.send('updater-message', { type, data })
+    mainWindow.webContents.send('updater-message', { type, data, isManual })
   }
 }
 
 // 检查更新
 export function checkForUpdates(): void {
+  isManualCheck = false
+
   if (is.dev && !process.env.DEBUG_UPDATER) {
     console.log('开发环境，跳过更新检查')
-    sendUpdateMessage('update-not-available', { version: '开发版本' })
+    sendUpdateMessage('update-not-available', { version: '开发版本' }, isManualCheck)
     return
   }
 
@@ -98,7 +101,7 @@ export function checkForUpdates(): void {
     autoUpdater.checkForUpdates()
   } catch (error) {
     console.error('启动更新检查失败:', error)
-    sendUpdateMessage('update-error', getErrorMessage(error as Error))
+    sendUpdateMessage('update-error', getErrorMessage(error as Error), isManualCheck)
   }
 }
 
@@ -151,6 +154,7 @@ export async function checkForUpdatesManually(): Promise<{
   latestVersion?: string
   releaseNotes?: string
 }> {
+  isManualCheck = true
   const currentVersion = getCurrentVersion()
 
   if (is.dev && !process.env.DEBUG_UPDATER) {
@@ -183,5 +187,23 @@ export async function checkForUpdatesManually(): Promise<{
   } catch (error) {
     console.error('检查更新失败:', error)
     throw new Error(getErrorMessage(error as Error))
+  }
+}
+
+// 手动检查更新（用于菜单栏或按钮触发）
+export function checkForUpdatesManual(): void {
+  isManualCheck = true
+
+  if (is.dev && !process.env.DEBUG_UPDATER) {
+    console.log('开发环境，跳过更新检查')
+    sendUpdateMessage('update-not-available', { version: '开发版本' }, isManualCheck)
+    return
+  }
+
+  try {
+    autoUpdater.checkForUpdates()
+  } catch (error) {
+    console.error('启动更新检查失败:', error)
+    sendUpdateMessage('update-error', getErrorMessage(error as Error), isManualCheck)
   }
 }

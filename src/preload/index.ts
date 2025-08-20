@@ -24,6 +24,7 @@ const api = {
   startDownloadUpdate: (): Promise<void> => ipcRenderer.invoke('start-download-update'),
   quitAndInstall: (): Promise<void> => ipcRenderer.invoke('quit-and-install'),
   checkForUpdatesAuto: (): Promise<void> => ipcRenderer.invoke('check-for-updates-auto'),
+  checkForUpdatesManual: (): Promise<void> => ipcRenderer.invoke('check-for-updates-manual'),
 
   // 监听更新消息
   onUpdaterMessage: (callback: (message: unknown) => void): void => {

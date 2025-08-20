@@ -174,12 +174,14 @@ function confirmAction(): void {
 }
 
 // 处理更新消息
-function handleUpdaterMessage(message: { type: string; data?: unknown }): void {
+function handleUpdaterMessage(message: { type: string; data?: unknown; isManual?: boolean }): void {
   console.log('收到更新消息:', message)
 
   switch (message.type) {
     case 'checking-for-update':
-      showSimpleNotification('检查更新', '正在检查是否有新版本...')
+      if (message.isManual) {
+        showSimpleNotification('检查更新', '正在检查是否有新版本...')
+      }
       break
 
     case 'update-available':
@@ -198,7 +200,10 @@ function handleUpdaterMessage(message: { type: string; data?: unknown }): void {
 
     case 'update-not-available':
       closeNotification()
-      showSimpleNotification('已是最新版本', `当前版本已是最新版本`)
+      // 只有在手动检查更新时才显示通知
+      if (message.isManual) {
+        showSimpleNotification('已是最新版本', `当前版本已是最新版本`)
+      }
       break
 
     case 'download-progress':

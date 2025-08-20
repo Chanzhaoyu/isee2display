@@ -1,4 +1,5 @@
 import { BrowserWindow, Menu, dialog, app } from 'electron'
+import { checkForUpdatesManual } from './updater'
 import icon from '../../resources/icon.png?asset'
 
 export function createMenu(mainWindow: BrowserWindow): void {
@@ -62,6 +63,12 @@ export function createMenu(mainWindow: BrowserWindow): void {
     {
       label: '帮助',
       submenu: [
+        {
+          label: '检查更新',
+          click: (): void => {
+            checkForUpdatesManual()
+          }
+        },
         {
           label: '关于',
           click: (): void => {

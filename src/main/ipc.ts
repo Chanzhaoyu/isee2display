@@ -7,6 +7,7 @@ import {
 } from './utils'
 import {
   checkForUpdates,
+  checkForUpdatesManual,
   downloadUpdate,
   quitAndInstall,
   getCurrentVersion,
@@ -63,5 +64,9 @@ export function ipcMainSetup(): void {
 
   ipcMain.handle('check-for-updates-auto', () => {
     checkForUpdates()
+  })
+
+  ipcMain.handle('check-for-updates-manual', () => {
+    checkForUpdatesManual()
   })
 }

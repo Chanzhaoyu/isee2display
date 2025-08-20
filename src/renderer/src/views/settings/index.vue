@@ -337,6 +337,10 @@ async function checkForUpdates(): Promise<void> {
   updateInfo.value = null
 
   try {
+    // 使用手动检查更新，这样会触发通知
+    await window.api.checkForUpdatesManual()
+
+    // 也获取详细的更新信息用于页面显示
     const result = await window.api.checkForUpdates()
     updateInfo.value = result
 
