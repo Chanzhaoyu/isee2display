@@ -3,8 +3,8 @@ import { electronAPI } from '@electron-toolkit/preload'
 
 // Custom APIs for renderer
 const api = {
-  getAutoLaunchStatus: (): Promise<unknown> => ipcRenderer.invoke('get-auto-launch-status'),
-  setAutoLaunch: (enable: boolean): Promise<unknown> =>
+  getAutoLaunchStatus: (): Promise<boolean> => ipcRenderer.invoke('get-auto-launch-status'),
+  setAutoLaunch: (enable: boolean): Promise<boolean> =>
     ipcRenderer.invoke('set-auto-launch', enable),
   // 添加获取MAC地址
   getMacAddress: (): Promise<string[]> => ipcRenderer.invoke('get-mac-address'),
@@ -15,7 +15,12 @@ const api = {
 
   // 自动更新相关API
   getAppVersion: (): Promise<string> => ipcRenderer.invoke('get-app-version'),
-  checkForUpdates: (): Promise<unknown> => ipcRenderer.invoke('check-for-updates'),
+  checkForUpdates: (): Promise<{
+    hasUpdate: boolean
+    currentVersion: string
+    latestVersion?: string
+    releaseNotes?: string
+  }> => ipcRenderer.invoke('check-for-updates'),
   startDownloadUpdate: (): Promise<void> => ipcRenderer.invoke('start-download-update'),
   quitAndInstall: (): Promise<void> => ipcRenderer.invoke('quit-and-install'),
   checkForUpdatesAuto: (): Promise<void> => ipcRenderer.invoke('check-for-updates-auto'),

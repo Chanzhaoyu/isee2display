@@ -5,12 +5,11 @@ import UpdateNotification from './components/UpdateNotification.vue'
 
 // 应用启动时自动检查更新
 onMounted(() => {
-  // 延迟3秒后检查更新，让应用完全加载
   setTimeout(() => {
-    if (window.api?.checkForUpdatesAuto) {
+    if (window.api?.checkForUpdatesAuto && navigator.onLine) {
       window.api.checkForUpdatesAuto()
     }
-  }, 5000)
+  }, 3000)
 })
 </script>
 

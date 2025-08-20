@@ -344,10 +344,16 @@ async function checkForUpdates(): Promise<void> {
       updateStatus.value = 'available'
     } else {
       updateStatus.value = 'latest'
+      setTimeout(() => {
+        updateStatus.value = ''
+      }, 3000)
     }
   } catch (error) {
     console.error('检查更新失败:', error)
     updateStatus.value = 'error'
+    setTimeout(() => {
+      updateStatus.value = ''
+    }, 3000)
   }
 }
 

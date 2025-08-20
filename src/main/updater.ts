@@ -4,6 +4,23 @@ import { is } from '@electron-toolkit/utils'
 
 let mainWindow: BrowserWindow | null = null
 
+// 获取用户友好的错误消息
+function getErrorMessage(error: Error): string {
+  const message = error.message.toLowerCase()
+
+  if (message.includes('network') || message.includes('timeout')) {
+    return '网络连接失败，请检查网络连接后重试'
+  } else if (message.includes('permission') || message.includes('access')) {
+    return '权限不足，请以管理员身份运行应用'
+  } else if (message.includes('signature') || message.includes('verify')) {
+    return '更新包验证失败，请稍后重试'
+  } else if (message.includes('disk') || message.includes('space')) {
+    return '磁盘空间不足，请清理磁盘空间后重试'
+  } else {
+    return `更新失败: ${error.message}`
+  }
+}
+
 // 设置更新相关配置
 export function setupUpdater(window: BrowserWindow): void {
   mainWindow = window
@@ -13,7 +30,7 @@ export function setupUpdater(window: BrowserWindow): void {
   autoUpdater.autoInstallOnAppQuit = true // 应用退出时自动安装
 
   // 开发环境下不检查更新
-  if (is.dev) {
+  if (is.dev && !process.env.DEBUG_UPDATER) {
     console.log('开发环境，跳过自动更新检查')
     return
   }
@@ -27,7 +44,8 @@ function setupUpdateEvents(): void {
   // 检查更新出错
   autoUpdater.on('error', (error) => {
     console.error('更新出错:', error)
-    sendUpdateMessage('update-error', error.message)
+    const errorMessage = getErrorMessage(error)
+    sendUpdateMessage('update-error', errorMessage)
   })
 
   // 检查更新
@@ -70,33 +88,48 @@ function sendUpdateMessage(type: string, data?: unknown): void {
 
 // 检查更新
 export function checkForUpdates(): void {
-  if (is.dev) {
+  if (is.dev && !process.env.DEBUG_UPDATER) {
     console.log('开发环境，跳过更新检查')
     sendUpdateMessage('update-not-available', { version: '开发版本' })
     return
   }
 
-  autoUpdater.checkForUpdates()
+  try {
+    autoUpdater.checkForUpdates()
+  } catch (error) {
+    console.error('启动更新检查失败:', error)
+    sendUpdateMessage('update-error', getErrorMessage(error as Error))
+  }
 }
 
 // 下载更新
 export function downloadUpdate(): void {
-  if (is.dev) {
+  if (is.dev && !process.env.DEBUG_UPDATER) {
     console.log('开发环境，无法下载更新')
     return
   }
 
-  autoUpdater.downloadUpdate()
+  try {
+    autoUpdater.downloadUpdate()
+  } catch (error) {
+    console.error('启动下载失败:', error)
+    sendUpdateMessage('update-error', getErrorMessage(error as Error))
+  }
 }
 
 // 安装更新并重启
 export function quitAndInstall(): void {
-  if (is.dev) {
+  if (is.dev && !process.env.DEBUG_UPDATER) {
     console.log('开发环境，无法安装更新')
     return
   }
 
-  autoUpdater.quitAndInstall()
+  try {
+    autoUpdater.quitAndInstall()
+  } catch (error) {
+    console.error('启动安装失败:', error)
+    sendUpdateMessage('update-error', getErrorMessage(error as Error))
+  }
 }
 
 // 获取当前版本信息
@@ -120,7 +153,7 @@ export async function checkForUpdatesManually(): Promise<{
 }> {
   const currentVersion = getCurrentVersion()
 
-  if (is.dev) {
+  if (is.dev && !process.env.DEBUG_UPDATER) {
     return {
       hasUpdate: false,
       currentVersion: '开发版本',
@@ -149,6 +182,6 @@ export async function checkForUpdatesManually(): Promise<{
     }
   } catch (error) {
     console.error('检查更新失败:', error)
-    throw error
+    throw new Error(getErrorMessage(error as Error))
   }
 }
