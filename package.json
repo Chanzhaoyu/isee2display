@@ -17,7 +17,9 @@
     "build:unpack": "npm run build && electron-builder --dir",
     "build:win": "npm run build && electron-builder --win",
     "build:mac": "npm run build && electron-builder --mac",
-    "build:linux": "npm run build && electron-builder --linux"
+    "build:linux": "npm run build && electron-builder --linux",
+    "tag": "git tag v$npm_package_version && git push origin v$npm_package_version",
+    "tag:latest": "git tag -a v$npm_package_version -m \"Release v$npm_package_version\" && git push origin v$npm_package_version"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.1",
