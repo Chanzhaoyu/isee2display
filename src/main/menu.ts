@@ -1,4 +1,4 @@
-import { BrowserWindow, Menu, dialog } from 'electron'
+import { BrowserWindow, Menu, dialog, app } from 'electron'
 import icon from '../../resources/icon.png?asset'
 
 export function createMenu(mainWindow: BrowserWindow): void {
@@ -69,7 +69,7 @@ export function createMenu(mainWindow: BrowserWindow): void {
               type: 'info',
               title: '关于',
               message: 'iSee Display 桌面端',
-              detail: '版本：1.0.0\n\n作者：ChenZhaoYu\n\n© 2025 All Rights Reserved',
+              detail: `版本：${app.getVersion()}\n\n作者：ChenZhaoYu\n\n© 2025 All Rights Reserved`,
               buttons: ['确定'],
               icon: icon
             })
