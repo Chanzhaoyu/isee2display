@@ -12,7 +12,7 @@ function createWindow(): void {
   const shouldFullScreen = getFullScreenDefault()
 
   const mainWindow = new BrowserWindow({
-    title: 'iSee Display',
+    title: 'iSee 浏览器',
     width: 1024,
     height: 768,
     fullscreen: shouldFullScreen,

@@ -75,7 +75,7 @@ export function createMenu(mainWindow: BrowserWindow): void {
             dialog.showMessageBox(mainWindow, {
               type: 'info',
               title: '关于',
-              message: 'iSee Display 桌面端',
+              message: 'iSee 浏览器',
               detail: `版本：${app.getVersion()}\n\n作者：ChenZhaoYu\n\n© 2025 All Rights Reserved`,
               buttons: ['确定'],
               icon: icon

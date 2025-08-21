@@ -1,5 +1,5 @@
 appId: com.electron.app
-productName: isee-display
+productName: iSee 浏览器
 directories:
   buildResources: build
 files:

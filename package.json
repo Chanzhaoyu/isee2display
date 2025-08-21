@@ -1,7 +1,7 @@
 {
   "name": "isee-display",
   "version": "1.2.0",
-  "description": "iSee Display 桌面程序",
+  "description": "iSee 浏览器桌面程序",
   "main": "./out/main/index.js",
   "author": "ChenZhaoYu",
   "scripts": {
