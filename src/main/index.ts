@@ -37,6 +37,16 @@ function createWindow(): void {
     mainWindow.show()
   })
 
+  mainWindow.webContents.on('before-input-event', (_, input) => {
+    if (input.key === 'Escape' && mainWindow.isFullScreen()) {
+      mainWindow.setFullScreen(false)
+    }
+  })
+
+  mainWindow.on('focus', () => {
+    mainWindow.webContents.focus()
+  })
+
   mainWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)
     return { action: 'deny' }
