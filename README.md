@@ -1,7 +1,7 @@
 # iSee 浏览器
 
-![1](./screenshot/1.png)
-![2](./screenshot/2.png)
+![1](./screenshot/1.jpg)
+![2](./screenshot/2.jpg)
 
 一个用于展示自定义网页 `Electron` 应用，不使用 `Tauri` 或 `Wails` 的原因是内置 `Webview` 加载网页会有兼容性问题。默认启动全屏，不需要可自行修改 `fullscreen: false`
 
@@ -10,6 +10,7 @@
 - [x] 刷新按钮
 - [x] 全局快捷键
 - [x] 跨平台
+- [x] 自动更新
 
 ## 安装依赖
 
@@ -32,6 +33,10 @@ npm run dev
 # 其它见 package.json
 npm run build:win
 ```
+
+## 已知问题
+
+`Mac` 签名问题
 
 ## Author
 
