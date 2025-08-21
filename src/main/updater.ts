@@ -116,7 +116,7 @@ export function downloadUpdate(): void {
     autoUpdater.downloadUpdate()
   } catch (error) {
     console.error('启动下载失败:', error)
-    sendUpdateMessage('update-error', getErrorMessage(error as Error))
+    sendUpdateMessage('update-error', getErrorMessage(error as Error), isManualCheck)
   }
 }
 
@@ -131,15 +131,14 @@ export function quitAndInstall(): void {
     autoUpdater.quitAndInstall()
   } catch (error) {
     console.error('启动安装失败:', error)
-    sendUpdateMessage('update-error', getErrorMessage(error as Error))
+    sendUpdateMessage('update-error', getErrorMessage(error as Error), isManualCheck)
   }
 }
 
 // 获取当前版本信息
 export function getCurrentVersion(): string {
   try {
-    // 使用 electron 的 app.getVersion() 获取版本号
-    // 这会自动读取 package.json 中的 version 字段
+    // 自动读取 package.json 中的 version 字段
     return app.getVersion()
   } catch (error) {
     console.error('获取版本号失败:', error)

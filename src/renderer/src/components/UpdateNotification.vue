@@ -230,7 +230,10 @@ function handleUpdaterMessage(message: { type: string; data?: unknown; isManual?
 
     case 'update-error':
       closeNotification()
-      showSimpleNotification('更新失败', `更新过程中出现错误: ${message.data}`, 8000)
+      // 只有在手动检查更新时才显示错误通知
+      if (message.isManual) {
+        showSimpleNotification('更新失败', `更新过程中出现错误: ${message.data}`, 8000)
+      }
       closeDialog()
       break
   }
