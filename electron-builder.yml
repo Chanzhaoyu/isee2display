@@ -1,4 +1,4 @@
-appId: com.electron.app
+appId: com.isee.display
 productName: iSee 浏览器
 directories:
   buildResources: build
@@ -13,6 +13,11 @@ asarUnpack:
   - resources/**
 win:
   executableName: isee-display
+  target:
+    - target: nsis
+      arch:
+        - ia32
+        - x64
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
