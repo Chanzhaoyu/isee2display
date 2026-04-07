@@ -34,7 +34,7 @@ export function createMenu(mainWindow: BrowserWindow): void {
       submenu: [
         {
           label: '首页',
-          accelerator: 'CommandOrControl+H',
+          accelerator: 'CommandOrControl+Shift+H',
           click: (): void => {
             if (mainWindow) {
               mainWindow.webContents.send('navigate-to', '/')

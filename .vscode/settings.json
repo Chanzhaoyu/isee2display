@@ -8,10 +8,6 @@
   "[json]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "cSpell.words": [
-    "Chanzhaoyu",
-    "isee",
-    "Zhao"
-  ],
+  "cSpell.words": ["Chanzhaoyu", "isee", "Zhao"],
   "js/ts.tsdk.path": "node_modules/typescript/lib"
 }

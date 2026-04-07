@@ -3,30 +3,29 @@
     <div v-if="isValidUrl" class="relative">
       <div
         v-if="isLoading && isFirstLoad"
-        class="absolute inset-0 z-10 flex items-center justify-center bg-white bg-opacity-90"
+        class="absolute inset-0 z-10 flex items-center justify-center bg-white/95 backdrop-blur-sm"
       >
         <div class="flex flex-col items-center">
-          <svg
-            class="w-16 h-16 mb-4 text-blue-600 animate-spin"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              class="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              stroke-width="4"
-            ></circle>
-            <path
-              class="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            ></path>
-          </svg>
-          <p class="text-lg font-medium text-gray-700">页面加载中...</p>
+          <!-- 三点跳动加载动画 -->
+          <div class="flex items-end space-x-2 mb-5">
+            <div
+              class="w-2.5 h-2.5 bg-blue-500 rounded-full loader-dot"
+              style="animation-delay: 0ms"
+            ></div>
+            <div
+              class="w-2.5 h-2.5 bg-blue-400 rounded-full loader-dot"
+              style="animation-delay: 150ms"
+            ></div>
+            <div
+              class="w-2.5 h-2.5 bg-blue-300 rounded-full loader-dot"
+              style="animation-delay: 300ms"
+            ></div>
+          </div>
+          <!-- 进度条 -->
+          <div class="w-40 h-0.5 bg-gray-100 rounded-full overflow-hidden">
+            <div class="h-full bg-blue-500 rounded-full loader-bar"></div>
+          </div>
+          <p class="mt-4 text-sm font-medium text-gray-400 tracking-wide">页面加载中</p>
         </div>
       </div>
 
@@ -40,35 +39,39 @@
       ></webview>
     </div>
 
-    <div v-else class="flex flex-col items-center justify-center w-full h-screen bg-gray-100">
-      <div class="max-w-xl p-8 text-center bg-white rounded-lg shadow-lg">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="w-16 h-16 mx-auto mb-4 text-gray-400"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-          />
-        </svg>
-        <h2 class="mb-2 text-2xl font-bold text-gray-800">未设置有效链接</h2>
-        <p class="mb-6 text-gray-600">请前往设置页面配置有效的网页链接，以便正常显示内容。</p>
-        <button
-          class="flex items-center justify-center px-6 py-3 mx-auto font-medium text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700"
-          @click="goToSettings"
+    <div
+      v-else
+      class="flex flex-col items-center justify-center w-full h-screen bg-gradient-to-br from-slate-50 to-blue-50"
+    >
+      <div class="flex flex-col items-center text-center px-8">
+        <!-- 图标 -->
+        <div
+          class="w-16 h-16 bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center mb-6"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            class="w-5 h-5 mr-2"
+            class="w-8 h-8 text-gray-300"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
           >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.5"
+              d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+            />
+          </svg>
+        </div>
+        <h2 class="mb-2 text-xl font-semibold text-gray-700">尚未配置显示链接</h2>
+        <p class="mb-8 text-sm text-gray-400 max-w-xs">
+          请前往设置页面添加网页地址，配置后将自动加载显示。
+        </p>
+        <button
+          class="flex items-center px-5 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-colors shadow-sm"
+          @click="goToSettings"
+        >
+          <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
@@ -82,7 +85,8 @@
               d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
             />
           </svg>
-          前往设置（Ctrl + ,）
+          前往设置
+          <kbd class="ml-2 px-1.5 py-0.5 text-xs font-mono bg-blue-500 rounded">Ctrl+,</kbd>
         </button>
       </div>
     </div>
@@ -160,16 +164,37 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.animate-spin {
-  animation: spin 1s linear infinite;
+.loader-dot {
+  animation: dotBounce 0.8s ease-in-out infinite alternate;
 }
 
-@keyframes spin {
+@keyframes dotBounce {
   from {
-    transform: rotate(0deg);
+    transform: translateY(0);
+    opacity: 1;
   }
   to {
-    transform: rotate(360deg);
+    transform: translateY(-8px);
+    opacity: 0.4;
+  }
+}
+
+.loader-bar {
+  animation: barSlide 1.4s ease-in-out infinite;
+}
+
+@keyframes barSlide {
+  0% {
+    width: 0%;
+    margin-left: 0%;
+  }
+  50% {
+    width: 60%;
+    margin-left: 20%;
+  }
+  100% {
+    width: 0%;
+    margin-left: 100%;
   }
 }
 </style>
