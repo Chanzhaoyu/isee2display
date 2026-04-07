@@ -181,7 +181,6 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 
 const LOCAL_STORAGE_URL_KEY = 'display-url'
-const LOCAL_STORAGE_FULLSCREEN_KEY = 'display-fullscreen-default'
 
 const url = ref('')
 const savedUrl = ref('')
@@ -269,29 +268,20 @@ async function toggleAutoLaunch(): Promise<void> {
 }
 
 function loadFullScreenSetting(): void {
-  const stored = localStorage.getItem(LOCAL_STORAGE_FULLSCREEN_KEY)
-  if (stored !== null) {
-    fullScreenDefault.value = stored === 'true'
-  } else {
-    // 如果本地存储中没有设置，从主进程获取
-    if (window.api.getFullScreenDefault) {
-      window.api
-        .getFullScreenDefault()
-        .then((value) => {
-          fullScreenDefault.value = value
-          localStorage.setItem(LOCAL_STORAGE_FULLSCREEN_KEY, value.toString())
-        })
-        .catch((error) => {
-          console.error('获取全屏设置失败:', error)
-        })
-    }
+  if (window.api.getFullScreenDefault) {
+    window.api
+      .getFullScreenDefault()
+      .then((value) => {
+        fullScreenDefault.value = value
+      })
+      .catch((error) => {
+        console.error('获取全屏设置失败:', error)
+      })
   }
 }
 
 async function toggleFullScreenDefault(): Promise<void> {
   try {
-    localStorage.setItem(LOCAL_STORAGE_FULLSCREEN_KEY, fullScreenDefault.value.toString())
-    // 通知主进程更新全屏设置
     await window.api.setFullScreenDefault(fullScreenDefault.value)
   } catch (error) {
     console.error('设置全屏模式失败:', error)
@@ -337,10 +327,6 @@ async function checkForUpdates(): Promise<void> {
   updateInfo.value = null
 
   try {
-    // 使用手动检查更新，这样会触发通知
-    await window.api.checkForUpdatesManual()
-
-    // 也获取详细的更新信息用于页面显示
     const result = await window.api.checkForUpdates()
     updateInfo.value = result
 
@@ -363,8 +349,7 @@ async function checkForUpdates(): Promise<void> {
 
 // 开始更新
 function startUpdate(): void {
-  // 触发自动更新流程
-  window.api.checkForUpdatesAuto()
+  window.api.startDownloadUpdate()
 }
 
 onMounted(() => {

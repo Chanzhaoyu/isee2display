@@ -8,7 +8,7 @@ import { useRouter, RouterView } from 'vue-router'
 
 const router = useRouter()
 
-const navigateTo = (_, route: string): void => {
+const navigateTo = (_: unknown, route: string): void => {
   router.push(route)
 }
 
