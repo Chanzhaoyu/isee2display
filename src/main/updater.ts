@@ -1,9 +1,10 @@
-import { autoUpdater } from 'electron-updater'
+import { autoUpdater, UpdateInfo } from 'electron-updater'
 import { BrowserWindow, app } from 'electron'
 import { is } from '@electron-toolkit/utils'
 
 let mainWindow: BrowserWindow | null = null
 let isManualCheck = false
+let eventsRegistered = false
 
 // 获取用户友好的错误消息
 function getErrorMessage(error: Error): string {
@@ -40,8 +41,11 @@ export function setupUpdater(window: BrowserWindow): void {
   setupUpdateEvents()
 }
 
-// 设置更新事件监听器
+// 设置更新事件监听器（保证只注册一次）
 function setupUpdateEvents(): void {
+  if (eventsRegistered) return
+  eventsRegistered = true
+
   // 检查更新出错
   autoUpdater.on('error', (error) => {
     console.error('更新出错:', error)
@@ -146,7 +150,7 @@ export function getCurrentVersion(): string {
   }
 }
 
-// 手动检查更新（用于设置页面）
+// 手动检查更新（用于设置页面）——由 autoUpdater 事件结果决定 hasUpdate，避免手动 semver 比较
 export async function checkForUpdatesManually(): Promise<{
   hasUpdate: boolean
   currentVersion: string
@@ -164,29 +168,44 @@ export async function checkForUpdatesManually(): Promise<{
     }
   }
 
-  try {
-    const result = await autoUpdater.checkForUpdates()
-
-    if (result?.updateInfo) {
-      const latestVersion = result.updateInfo.version
-      const hasUpdate = latestVersion !== currentVersion
-
-      return {
-        hasUpdate,
+  return new Promise((resolve, reject) => {
+    const onAvailable = (info: UpdateInfo): void => {
+      cleanup()
+      resolve({
+        hasUpdate: true,
         currentVersion,
-        latestVersion,
-        releaseNotes: result.updateInfo.releaseNotes as string
-      }
+        latestVersion: info.version,
+        releaseNotes: info.releaseNotes as string
+      })
     }
 
-    return {
-      hasUpdate: false,
-      currentVersion
+    const onNotAvailable = (info: UpdateInfo): void => {
+      cleanup()
+      resolve({ hasUpdate: false, currentVersion, latestVersion: info.version })
     }
-  } catch (error) {
-    console.error('检查更新失败:', error)
-    throw new Error(getErrorMessage(error as Error))
-  }
+
+    const onError = (err: Error): void => {
+      cleanup()
+      reject(new Error(getErrorMessage(err)))
+    }
+
+    const cleanup = (): void => {
+      autoUpdater.off('update-available', onAvailable)
+      autoUpdater.off('update-not-available', onNotAvailable)
+      autoUpdater.off('error', onError)
+    }
+
+    autoUpdater.once('update-available', onAvailable)
+    autoUpdater.once('update-not-available', onNotAvailable)
+    autoUpdater.once('error', onError)
+
+    try {
+      autoUpdater.checkForUpdates()
+    } catch (error) {
+      cleanup()
+      reject(new Error(getErrorMessage(error as Error)))
+    }
+  })
 }
 
 // 手动检查更新（用于菜单栏或按钮触发）

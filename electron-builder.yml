@@ -33,7 +33,7 @@ mac:
   notarize: false
   artifactName: ${name}-${version}-${arch}-mac.${ext}
 dmg:
-  artifactName: ${name}-${version}.${ext}
+  artifactName: ${name}-${version}-${arch}.${ext}
 linux:
   target:
     - AppImage
