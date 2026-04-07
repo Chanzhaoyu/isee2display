@@ -96,8 +96,6 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 const LOCAL_STORAGE_URL_KEY = 'display-url'
 
-const defaultUrl = ''
-
 const webviewUrl = ref('')
 
 const isValidUrl = ref(false)
@@ -122,12 +120,7 @@ function loadSavedUrl(): void {
     webviewUrl.value = savedUrl
     isValidUrl.value = true
   } else {
-    if (validateUrl(defaultUrl)) {
-      webviewUrl.value = defaultUrl
-      isValidUrl.value = true
-    } else {
-      isValidUrl.value = false
-    }
+    isValidUrl.value = false
   }
 }
 
@@ -167,16 +160,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-}
-
 .animate-spin {
   animation: spin 1s linear infinite;
 }
