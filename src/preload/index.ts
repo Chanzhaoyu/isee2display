@@ -26,8 +26,9 @@ const api = {
   checkForUpdatesAuto: (): Promise<void> => ipcRenderer.invoke('check-for-updates-auto'),
   checkForUpdatesManual: (): Promise<void> => ipcRenderer.invoke('check-for-updates-manual'),
 
-  // 监听更新消息
+  // 监听更新消息（先清除旧监听器，避免重复注册）
   onUpdaterMessage: (callback: (message: unknown) => void): void => {
+    ipcRenderer.removeAllListeners('updater-message')
     ipcRenderer.on('updater-message', (_, message) => callback(message))
   },
 
