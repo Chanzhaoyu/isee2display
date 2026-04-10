@@ -36,7 +36,9 @@ npm run build:win
 
 ## 已知问题
 
-`Mac` 签名问题
+1、`Mac` 签名问题
+
+2、`Mac` 上打开应用提示「已损坏的解决办法」，终端输入 `xattr -cr "/Applications/iSee 浏览器.app"`
 
 ## Author
 
