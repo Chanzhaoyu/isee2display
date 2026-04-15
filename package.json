@@ -22,29 +22,29 @@
     "tag:latest": "git tag -a v$npm_package_version -m \"Release v$npm_package_version\" && git push origin v$npm_package_version"
   },
   "dependencies": {
-    "@electron-toolkit/preload": "^3.0.1",
+    "@electron-toolkit/preload": "^3.0.2",
     "@electron-toolkit/utils": "^4.0.0",
-    "electron-updater": "^6.3.9",
-    "vue-router": "^4.5.0"
+    "electron-updater": "^6.8.3",
+    "vue-router": "^4.6.4"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config-prettier": "3.0.0",
-    "@electron-toolkit/eslint-config-ts": "^3.0.0",
+    "@electron-toolkit/eslint-config-ts": "^3.1.0",
     "@electron-toolkit/tsconfig": "^1.0.1",
-    "@types/node": "^22.13.4",
-    "@vitejs/plugin-vue": "^5.2.1",
-    "autoprefixer": "^10.4.20",
-    "electron": "^34.2.0",
+    "@types/node": "^22.19.17",
+    "@vitejs/plugin-vue": "^5.2.4",
+    "autoprefixer": "^10.5.0",
+    "electron": "^34.5.8",
     "electron-builder": "^25.1.8",
-    "electron-vite": "^3.0.0",
-    "eslint": "^9.20.1",
-    "eslint-plugin-vue": "^9.32.0",
-    "postcss": "^8.5.3",
-    "prettier": "^3.5.1",
-    "tailwindcss": "^3.4.17",
-    "typescript": "^5.7.3",
-    "vite": "^6.1.0",
-    "vue": "^3.5.13",
-    "vue-tsc": "^2.2.2"
+    "electron-vite": "^3.1.0",
+    "eslint": "^9.39.4",
+    "eslint-plugin-vue": "^9.33.0",
+    "postcss": "^8.5.9",
+    "prettier": "^3.8.2",
+    "tailwindcss": "^3.4.19",
+    "typescript": "^5.9.3",
+    "vite": "^6.4.2",
+    "vue": "^3.5.32",
+    "vue-tsc": "^2.2.12"
   }
 }
